@@ -96,8 +96,10 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
                 Log.d("loc", "Likely places status: " + likelyPlaces.getStatus());
                 Log.d("loc", "Likely places count: " + count);
 
+                TextView locationTextView = (TextView) findViewById(R.id.locationMessage);
+
                 if(count > 0) {
-                    TextView locationTextView = (TextView) findViewById(R.id.locationMessage);
+
                     PlaceLikelihood placeLikelihood = likelyPlaces.get(0);
                     String content = "";
                     if (placeLikelihood != null && placeLikelihood.getPlace() != null && !TextUtils.isEmpty(placeLikelihood.getPlace().getName()))
@@ -105,6 +107,8 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
                     if (placeLikelihood != null)
                         content += "Percent change of being there: " + (int) (placeLikelihood.getLikelihood() * 100) + "%";
                     locationTextView.setText(content);
+                } else {
+                    locationTextView.setText("Could not find your current location");
                 }
 
                 likelyPlaces.release();
