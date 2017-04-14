@@ -2,6 +2,7 @@ package com.example.jokklan.finalproject;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -15,13 +16,15 @@ import android.widget.TextView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
 
-public class MainActivity extends AppCompatActivity implements OnConnectionFailedListener {
+public class MainActivity extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener {
     private GoogleApiClient mGoogleApiClient;
     public final static int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
 
@@ -34,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
                 .Builder(this)
                 .addApi(Places.GEO_DATA_API)
                 .addApi(Places.PLACE_DETECTION_API)
+                .addApi(LocationServices.API)
                 .enableAutoManage(this, this)
                 .build();
     }
@@ -73,15 +77,51 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
         if( mGoogleApiClient != null && mGoogleApiClient.isConnected() ) {
             mGoogleApiClient.disconnect();
         }
+
         super.onStop();
+    }
+
+    public void findPosition(View view) {
+        Log.d("loc", "Clicked position button");
+        TextView locationTextView = (TextView) findViewById(R.id.positionMessage);
+        locationTextView.setText("Looking for current position");
+        startLocationUpdates();
     }
 
     public void findLocation(View view) {
         Log.d("loc", "Clicked button");
+        TextView locationTextView = (TextView) findViewById(R.id.locationMessage);
+        locationTextView.setText("Looking for current places");
         guessCurrentPlace();
     }
 
-    private void guessCurrentPlace() {
+    public void onConnected(Bundle connectionHint) {
+        startLocationUpdates();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    protected void startLocationUpdates() {
+        Log.d("loc", "Starting startLocationUpdates");
+        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+        TextView locationTextView = (TextView) findViewById(R.id.positionMessage);
+        String text = "";
+        if (mLastLocation != null) {
+            Log.d("loc", "Found location position");
+            text = text.concat(String.valueOf(mLastLocation.getLatitude()));
+            text = text.concat(String.valueOf(mLastLocation.getLongitude()));
+            locationTextView.setText(text);
+        } else {
+            Log.d("loc", "Could not find location position");
+            locationTextView.setText("Could not find current position");
+        }
+    }
+
+    protected void guessCurrentPlace() {
         Log.d("loc", "Starting guessCurrentPlace");
         PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace( mGoogleApiClient, null );
 
