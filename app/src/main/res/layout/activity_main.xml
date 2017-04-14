@@ -19,7 +19,7 @@ tools:context="com.example.jokklan.finalproject.MainActivity">
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center|center"
-            android:text="Hello World!"
+            android:text="Click to start the location notification service"
             />
     </LinearLayout>
 
@@ -48,7 +48,7 @@ tools:context="com.example.jokklan.finalproject.MainActivity">
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:gravity="center|center"
-            android:text="Position:"
+            android:text="Cancel location service:"
             />
     </LinearLayout>
 

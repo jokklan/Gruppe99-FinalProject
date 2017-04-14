@@ -38,11 +38,13 @@
         </activity>
 
         <receiver
-            android:name=".AlarmReceiver"/>
+            android:name=".AlarmReceiver"
+            android:process=":remote"/>
 
         <!-- Will not be called unless the application explicitly enables it -->
         <receiver
             android:name=".DeviceBootReceiver"
+            android:exported="false"
             android:enabled="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>

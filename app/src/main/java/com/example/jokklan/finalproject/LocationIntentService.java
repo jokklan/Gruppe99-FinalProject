@@ -13,18 +13,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
-import com.intentfilter.androidpermissions.PermissionManager;
-
-import static java.util.Collections.singleton;
 
 /**
  * JobService to be scheduled by the JobScheduler.
@@ -35,6 +30,18 @@ public class LocationIntentService extends IntentService implements GoogleApiCli
     private GoogleApiClient mGoogleApiClient;
     private static final String TAG = "LocationJobService";
     private static int notificationId = 1;
+
+    final class LocationResult {
+        final String place;
+        final int procent;
+        final boolean success;
+
+        public LocationResult(String place, int procent, boolean success) {
+            this.place = place;
+            this.procent = procent;
+            this.success = success;
+        }
+    }
 
     public LocationIntentService() {
         super("LocationIntentService");
@@ -53,10 +60,6 @@ public class LocationIntentService extends IntentService implements GoogleApiCli
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
-
-        if( mGoogleApiClient != null ) {
-            mGoogleApiClient.connect();
-        }
     }
 
     // This method is called when the service instance
@@ -76,16 +79,20 @@ public class LocationIntentService extends IntentService implements GoogleApiCli
     protected void onHandleIntent(Intent intent) {
         Log.d(TAG, "onHandleIntent");
 
+        if( mGoogleApiClient != null ) {
+            if (!mGoogleApiClient.isConnected()) {
+                mGoogleApiClient.connect();
+            }
 
-        askForPermission();
+            LocationResult locationResult = guessCurrentPlace();
 
-        String placesMessage = guessCurrentPlace();
-        sendNotification(placesMessage);
-
-        //WakefulBroadcastReceiver.completeWakefulIntent(intent);
+            if (locationResult.success) {
+                sendNotification(locationResult);
+            }
+        }
     }
 
-    protected String guessCurrentPlace() {
+    protected LocationResult guessCurrentPlace() {
         Log.d(TAG, "Starting guessCurrentPlace");
         PendingResult<PlaceLikelihoodBuffer> query = Places.PlaceDetectionApi.getCurrentPlace( mGoogleApiClient, null );
 
@@ -96,32 +103,39 @@ public class LocationIntentService extends IntentService implements GoogleApiCli
         Log.d(TAG, "Running location callback");
 
         int count = likelyPlaces.getCount();
-        String status = "";
+        int procent = 0;
+        String place = "";
+        boolean success = false;
 
         Log.d(TAG, "Likely places status: " + likelyPlaces.getStatus());
         Log.d(TAG, "Likely places count: " + count);
 
         if(count > 0) {
+            success = true;
             PlaceLikelihood placeLikelihood = likelyPlaces.get(0);
-            String content = "";
-            if (placeLikelihood != null && placeLikelihood.getPlace() != null && !TextUtils.isEmpty(placeLikelihood.getPlace().getName()))
-                content = "Most likely place: " + placeLikelihood.getPlace().getName() + "\n";
-            if (placeLikelihood != null)
-                content += "Percent change of being there: " + (int) (placeLikelihood.getLikelihood() * 100) + "%";
 
-            status = content;
+            if (placeLikelihood != null && placeLikelihood.getPlace() != null && !TextUtils.isEmpty(placeLikelihood.getPlace().getName())) {
+                place = placeLikelihood.getPlace().getName().toString();
+            }
+
+            if (placeLikelihood != null) {
+                procent = (int) (placeLikelihood.getLikelihood() * 100);
+            }
         } else {
-            status = "Could not find your current location";
+            success = false;
         }
 
         likelyPlaces.release();
-        return status;
+
+        LocationResult result = new LocationResult(place, procent, success);
+        return result;
     }
 
-    private void sendNotification(String message) {
-        Log.d(TAG, "sendNotification: " + message);
+    private void sendNotification(LocationResult location) {
+        Log.d(TAG, "sendNotification: " + location.place);
 
         Intent resultIntent = new Intent(this, LocationResultActivity.class);
+        resultIntent.putExtra(LocationResultActivity.PLACE_EXTRA, location.place);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         // Adds the back stack
         stackBuilder.addParentStack(LocationResultActivity.class);
@@ -133,7 +147,7 @@ public class LocationIntentService extends IntentService implements GoogleApiCli
 
         NotificationCompat.Builder builder = new NotificationCompat
                 .Builder(this)
-                .setContentTitle("Found a location near you: " + message)
+                .setContentTitle("Found a location near you: " + location.place)
                 .setSmallIcon(R.drawable.notification_icon);
 
         builder.setContentIntent(resultPendingIntent);
@@ -160,22 +174,22 @@ public class LocationIntentService extends IntentService implements GoogleApiCli
         Log.d(TAG, "onConnectionSuspended");
     }
 
-    public void askForPermission() {
-        Log.d(TAG, "askForPermission");
-        PermissionManager permissionManager = PermissionManager.getInstance(getApplicationContext());
-        permissionManager.checkPermissions(singleton(Manifest.permission.ACCESS_FINE_LOCATION), new PermissionManager.PermissionRequestListener() {
-            @Override
-            public void onPermissionGranted() {
-                Log.d(TAG, "Permissions Granted");
-                Toast.makeText(getApplicationContext(), "Permissions Granted", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onPermissionDenied() {
-                Log.d(TAG, "Permissions Denied");
-                Toast.makeText(getApplicationContext(), "Permissions Denied", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+    //public void askForPermission() {
+    //    Log.d(TAG, "askForPermission");
+    //    PermissionManager permissionManager = PermissionManager.getInstance(getApplicationContext());
+    //    permissionManager.checkPermissions(singleton(Manifest.permission.ACCESS_FINE_LOCATION), new PermissionManager.PermissionRequestListener() {
+    //        @Override
+    //        public void onPermissionGranted() {
+    //            Log.d(TAG, "Permissions Granted");
+    //            Toast.makeText(getApplicationContext(), "Permissions Granted", Toast.LENGTH_SHORT).show();
+    //        }
+//
+    //        @Override
+    //        public void onPermissionDenied() {
+    //            Log.d(TAG, "Permissions Denied");
+    //            Toast.makeText(getApplicationContext(), "Permissions Denied", Toast.LENGTH_SHORT).show();
+    //        }
+    //    });
+    //}
 
 }

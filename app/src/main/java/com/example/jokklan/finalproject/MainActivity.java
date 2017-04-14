@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void start() {
         long firstMillis = System.currentTimeMillis(); // alarm is set right away
-        long interval = AlarmManager.INTERVAL_HALF_HOUR;
+        long interval = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
         AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
 
         alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis,
