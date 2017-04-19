@@ -147,7 +147,7 @@ public class LocationIntentService extends IntentService implements GoogleApiCli
 
         NotificationCompat.Builder builder = new NotificationCompat
                 .Builder(this)
-                .setContentTitle("Found a location near you: " + location.place)
+                .setContentTitle("Du er her: " + location.place + ". Vær opmærksom på dit forbrug!")
                 .setSmallIcon(R.drawable.notification_icon);
 
         builder.setContentIntent(resultPendingIntent);
@@ -173,23 +173,4 @@ public class LocationIntentService extends IntentService implements GoogleApiCli
     public void onConnectionSuspended(int i) {
         Log.d(TAG, "onConnectionSuspended");
     }
-
-    //public void askForPermission() {
-    //    Log.d(TAG, "askForPermission");
-    //    PermissionManager permissionManager = PermissionManager.getInstance(getApplicationContext());
-    //    permissionManager.checkPermissions(singleton(Manifest.permission.ACCESS_FINE_LOCATION), new PermissionManager.PermissionRequestListener() {
-    //        @Override
-    //        public void onPermissionGranted() {
-    //            Log.d(TAG, "Permissions Granted");
-    //            Toast.makeText(getApplicationContext(), "Permissions Granted", Toast.LENGTH_SHORT).show();
-    //        }
-//
-    //        @Override
-    //        public void onPermissionDenied() {
-    //            Log.d(TAG, "Permissions Denied");
-    //            Toast.makeText(getApplicationContext(), "Permissions Denied", Toast.LENGTH_SHORT).show();
-    //        }
-    //    });
-    //}
-
 }
