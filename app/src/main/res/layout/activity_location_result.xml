@@ -9,13 +9,40 @@
     tools:context="com.example.jokklan.finalproject.LocationResultActivity">
 
 
-    <TextView
-        android:id="@+id/locationResultMessage"
+    <LinearLayout
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/locationResultMessage"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center|center"
+            android:text="You have just been at"
+            />
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_weight="1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center|center"
-        android:text="WORKING LOCATION RESULT!"
-        />
+        android:gravity="center|top"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/purchase"
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Submit"
+            android:onClick="sendResult" />
+    </LinearLayout>
 
 </LinearLayout>
