@@ -21,8 +21,6 @@ import java.util.HashMap;
 
 public class LocationResultActivity extends AppCompatActivity {
     public static final String PLACE_EXTRA = "com.example.jokklan.finalproject.extra.place";
-    private String android_id = Secure.getString(getContentResolver(),
-            Secure.ANDROID_ID);
     private static String place;
 
     @Override
@@ -36,7 +34,7 @@ public class LocationResultActivity extends AppCompatActivity {
         Log.d("LocationResultActivity", "place: " + place);
 
         TextView textView = (TextView) findViewById(R.id.locationResultMessage);
-        textView.setText(place);
+        textView.setText("Du er/har lige været her: " + place +". Har du købt noget? Hvis ja indskriv beløb nedenfor og send:");
     }
 
 
@@ -55,6 +53,8 @@ public class LocationResultActivity extends AppCompatActivity {
     public void sendDataToServer(String purchase) {
         String url = "https://group-99-api.herokuapp.com/tests";
         HashMap<String, String> body = new HashMap<String, String>();
+
+        String android_id = Secure.getString(this.getContentResolver(), Secure.ANDROID_ID);
 
         body.put("assignment", "3");
         body.put("user_id", android_id);

@@ -30,6 +30,11 @@
             android:enabled="true"
             android:exported="false" />
 
+        <service
+            android:name=".NetworkService"
+            android:enabled="true"
+            android:exported="false" />
+
         <activity android:name=".LocationResultActivity"
             android:parentActivityName=".MainActivity">
             <meta-data

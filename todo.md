@@ -1,0 +1,3 @@
+- Når du trykker på notifikationen skal der være mulighed for at vælge om du har købt noget, og for hvor meget
+- Kun vis notifikationer for butikker
+- Vis ikke notifikation for den samme butik to gange i træk
